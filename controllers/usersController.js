@@ -18,7 +18,7 @@ const getUsers = async (req, res, next) => {
 // Sign up user
 const signup = async (req, res, next) => {
   const errors = validationResult(req);
-  if (errors.isEmpty()) {
+  if (!errors.isEmpty()) {
     return next(
       new HttpError("Invalid inputs passed please check your data", 422)
     );
