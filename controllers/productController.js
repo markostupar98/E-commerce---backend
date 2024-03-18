@@ -10,7 +10,7 @@ const getProductById = async (req, res, next) => {
   const productId = req.params.productId;
   let product;
   try {
-    const product = await Product.findById(productId);
+    product = await Product.findById(productId);
   } catch (err) {
     const error = new HttpError("Could not find a product for the id", 404);
     return next(error);
@@ -38,7 +38,7 @@ const getProductsByUserId = async (req, res, next) => {
     return next(new HttpError("Could not find a products for the userId", 404));
   }
   res.json({
-    products: userWithProduct.product.map((product) =>
+    products: userWithProduct.products.map((product) =>
       product.toObject({ getters: true })
     ),
   });
@@ -55,7 +55,6 @@ const createProduct = async (req, res, next) => {
   const createdProduct = new Product({
     title,
     description,
-    password,
     image:
       "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/Hyundai-Grand-i10-Nios-200120231541.jpg&w=350&h=251&q=91&c=1",
     creator,
@@ -78,7 +77,7 @@ const createProduct = async (req, res, next) => {
     const session = await mongoose.startSession();
     session.startTransaction();
     await createdProduct.save({ session });
-    user.products.push(createProduct);
+    user.products.push(createdProduct);
     await user.save({ session });
     await session.commitTransaction();
   } catch (err) {
