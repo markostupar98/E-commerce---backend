@@ -25,6 +25,7 @@ const signup = async (req, res, next) => {
   }
   const { name, email, password } = req.body;
   let existingUser;
+
   try {
     existingUser = await User.findOne({ email });
   } catch (err) {
@@ -38,8 +39,7 @@ const signup = async (req, res, next) => {
   let createdUser = new User({
     name,
     email,
-    image:
-      "https://www.linearity.io/blog/content/images/size/w1280/format/avif/2023/06/how-to-create-a-car-NewBlogCover.png",
+    image: req.file.path,
     password,
     products: [],
   });

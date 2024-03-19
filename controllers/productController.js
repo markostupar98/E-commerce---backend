@@ -1,7 +1,7 @@
 const HttpError = require("../models/httpError");
 const mongoose = require("mongoose");
+const fs = require("fs");
 const { validationResult } = require("express-validator");
-const { v4: uuidv4 } = require("uuid");
 const Product = require("../models/product");
 const User = require("../models/users");
 
@@ -48,15 +48,14 @@ const getProductsByUserId = async (req, res, next) => {
 
 const createProduct = async (req, res, next) => {
   const errors = validationResult(req);
-  if (errors.isEmpty()) {
+  if (!errors.isEmpty()) {
     throw new HttpError("Invalid inputs passed please check your data", 422);
   }
   const { title, description, address, creator } = req.body;
   const createdProduct = new Product({
     title,
     description,
-    image:
-      "https://cdni.autocarindia.com/utils/imageresizer.ashx?n=https://cms.haymarketindia.net/model/uploads/modelimages/Hyundai-Grand-i10-Nios-200120231541.jpg&w=350&h=251&q=91&c=1",
+    image: req.file.path,
     creator,
     address,
   });
@@ -94,7 +93,7 @@ const createProduct = async (req, res, next) => {
 
 const updateProduct = async (req, res, next) => {
   const errors = validationResult(req);
-  if (errors.isEmpty()) {
+  if (!errors.isEmpty()) {
     return next(
       new HttpError("Invalid inputs passed please check your data", 422)
     );
@@ -119,7 +118,7 @@ const updateProduct = async (req, res, next) => {
     await product.save();
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, ould not update product",
+      "Something went wrong, Could not update product",
       500
     );
     return next(error);
@@ -137,7 +136,7 @@ const deleteProduct = async (req, res, next) => {
     product = await Product.findById(productId).populate("creator");
   } catch (err) {
     const error = new HttpError(
-      "Something went wrong, ould not update product",
+      "Something went wrong, Could not delete product",
       500
     );
     return next(error);
@@ -148,10 +147,12 @@ const deleteProduct = async (req, res, next) => {
     return next(error);
   }
 
+  const imagePath = product.image;
+
   try {
     const session = await mongoose.startSession();
     session.startTransaction();
-    await product.remove({ session });
+    await product.deleteOne({ session });
     product.creator.products.pull(product);
     await product.creator.save({ session });
     await session.commitTransaction();
@@ -162,6 +163,9 @@ const deleteProduct = async (req, res, next) => {
     );
     return next(error);
   }
+  fs.unlink(imagePath, (err) => {
+    console.log(err)
+  });
   res.status(200).json({});
 };
 
