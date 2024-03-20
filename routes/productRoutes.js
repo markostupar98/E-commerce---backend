@@ -2,16 +2,18 @@ const express = require("express");
 const router = express.Router();
 const { check } = require("express-validator");
 const fileUpload = require("../middleware/fileUpload");
+const authMiddleware = require("../middleware/auth");
 
 const productControllers = require("../controllers/productController");
 
 router.get("/user/:userId", productControllers.getProductsByUserId);
 router.get("/:productId", productControllers.getProductById);
 
+router.use(authMiddleware);
 
 router.post(
   "/",
-  fileUpload.single('image'),
+  fileUpload.single("image"),
   [
     check("title").not().isEmpty(),
     check("description").isLength({ min: 5 }),

@@ -111,6 +111,13 @@ const updateProduct = async (req, res, next) => {
     );
     return next(error);
   }
+  if (product.creator.toString() !== req.userData.userId) {
+    const error = new HttpError(
+      "Something went wrong, Could not edit product",
+      401
+    );
+    return next(error);
+  }
   product.title = title;
   product.description = description;
 
@@ -146,7 +153,13 @@ const deleteProduct = async (req, res, next) => {
     const error = new HttpError("Could not find product for this id", 404);
     return next(error);
   }
-
+  if (product.creator.id !== req.userData.userId) {
+    const error = new HttpError(
+      "Something went wrong, Could not delete product",
+      401
+    );
+    return next(error);
+  }
   const imagePath = product.image;
 
   try {
@@ -164,7 +177,7 @@ const deleteProduct = async (req, res, next) => {
     return next(error);
   }
   fs.unlink(imagePath, (err) => {
-    console.log(err)
+    console.log(err);
   });
   res.status(200).json({});
 };
