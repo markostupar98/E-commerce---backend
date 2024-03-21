@@ -51,18 +51,18 @@ const createProduct = async (req, res, next) => {
   if (!errors.isEmpty()) {
     throw new HttpError("Invalid inputs passed please check your data", 422);
   }
-  const { title, description, address, creator } = req.body;
+  const { title, description, address } = req.body;
   const createdProduct = new Product({
     title,
     description,
     image: req.file.path,
-    creator,
+    creator: req.userData.userId,
     address,
   });
 
   let user;
   try {
-    user = await User.findById(creator);
+    user = await User.findById(req.userData.userId);
   } catch (err) {
     const error = new HttpError("Creating products failed", 500);
     return next(error);

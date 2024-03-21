@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "marko",
+    "DB_PASSWORD": "weltmeister53",
+    "DB_NAME": "ecommerce",
+    "JWT_KEY": "supersecret_dont_share"
+  }
+}
